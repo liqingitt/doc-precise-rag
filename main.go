@@ -1,0 +1,28 @@
+package main
+
+import (
+	"doc-precise-rag/knowledge/clients"
+	"doc-precise-rag/knowledge/handler"
+	"doc-precise-rag/knowledge/repository"
+	"doc-precise-rag/knowledge/router"
+	"doc-precise-rag/knowledge/service"
+)
+
+func main() {
+	defer clients.DB.Close()
+
+	commonSvc := service.NewCommonService(clients.CosClient)
+	commonHandler := handler.NewCommonHandler(commonSvc)
+
+	docOriginFileRepository := repository.NewDocOriginFileRepository(clients.DB, clients.SnowflakeClient)
+	docOriginFileService := service.NewDocOriginFileService(docOriginFileRepository)
+	docOriginFileHandler := handler.NewDocHandler(docOriginFileService)
+
+	h := &router.Handler{
+		CommonHandler: commonHandler,
+		DocHandler:    docOriginFileHandler,
+	}
+	r := router.NewRouter(h)
+	r.Run(":8080")
+
+}

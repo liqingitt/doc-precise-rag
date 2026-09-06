@@ -1,0 +1,21 @@
+:root {
+  --app-bg: #e8eef6;
+  --app-surface: #f3f6fb;
+  --app-card: #ffffff;
+  --app-border: #d9e2ec;
+  --app-text: #1e293b;
+  --app-text-secondary: #64748b;
+  --app-primary: #3b6cff;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--app-bg);
+  color: var(--app-text);
+}

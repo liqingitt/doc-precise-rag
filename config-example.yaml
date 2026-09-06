@@ -1,0 +1,20 @@
+
+ai_config:
+  mineru_config:
+    token: mineru 的 key
+  vlm_config:
+    model_name: vlm 的 model_name
+    token: vlm 的 token
+    base_url: vlm 的 base_url
+cos_config:
+  bucket: cos 的 bucket
+  domain: cos 的 domain
+  scheme: cos 的 scheme
+  secret_id: cos 的 secret_id
+  secret_key: cos 的 secret_key
+mysql_config:
+  host: mysql 的 host
+  port: mysql 的 port
+  user: mysql 的 user
+  password: mysql 的 password
+  db_name: mysql 的 db_name
