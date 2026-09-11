@@ -33,7 +33,7 @@ export default function AdminLayout() {
       </Layout.Sider>
       <Layout>
         <Layout.Header className={styles.header}>
-          <h1 className={styles.title}>{pageTitle[location.pathname] ?? ''}</h1>
+          <h1 className={`${styles.title} page-title`}>{pageTitle[location.pathname] ?? ''}</h1>
         </Layout.Header>
         <Layout.Content className={styles.content}>
           <Outlet />

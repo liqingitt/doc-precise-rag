@@ -2,8 +2,10 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"doc-precise-rag/knowledge/entity"
 	"doc-precise-rag/knowledge/module"
+	"errors"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/bwmarrin/snowflake"
@@ -76,7 +78,7 @@ func (r *DocOriginFileRepository) AddDocOriginFile(ctx context.Context, module *
 }
 
 func (r *DocOriginFileRepository) FindDocOriginFileByDocTitle(ctx context.Context, DocTitle string) (*module.DocOriginFileModule, error) {
-	sql, args, err := squirrel.
+	sqlStr, args, err := squirrel.
 		Select("id", "object_key", "doc_title", "create_time", "update_time").
 		From("doc_origin_file").
 		Where("doc_title = ?", DocTitle).
@@ -86,7 +88,12 @@ func (r *DocOriginFileRepository) FindDocOriginFileByDocTitle(ctx context.Contex
 		return nil, err
 	}
 	var module module.DocOriginFileModule
-	err = r.db.GetContext(ctx, &module, sql, args...)
+	err = r.db.GetContext(ctx, &module, sqlStr, args...)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+
 	if err != nil {
 		return nil, err
 	}

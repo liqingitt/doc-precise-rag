@@ -201,7 +201,8 @@ export default function DocumentsPage() {
     <div className={styles.page}>
       <div className={styles.toolbar}>
         <div>
-          <h2 className={styles.heading}>原始文档</h2>
+          <div className="eyebrow">Knowledge Base</div>
+          <h2 className={`${styles.heading} page-title`}>原始文档</h2>
           <p className={styles.desc}>上传 PDF 后直传对象存储，再登记文档并启动解析。</p>
         </div>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalOpen(true)}>
@@ -215,6 +216,7 @@ export default function DocumentsPage() {
         columns={columns}
         dataSource={list}
         tableLayout="fixed"
+        bordered
         pagination={{
           current: page,
           pageSize,

@@ -1,11 +1,23 @@
 :root {
-  --app-bg: #e8eef6;
-  --app-surface: #f3f6fb;
-  --app-card: #ffffff;
-  --app-border: #d9e2ec;
-  --app-text: #1e293b;
-  --app-text-secondary: #64748b;
-  --app-primary: #3b6cff;
+  font-family: 'Noto Sans SC', -apple-system, sans-serif;
+  color: #2E3A34;
+  background: #F5F1E6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --app-bg: #F5F1E6;
+  --app-surface: #FBF8F0;
+  --app-elevated: #FCFAF3;
+  --app-block: #F1EADB;
+  --app-border: #E4DCC9;
+  --app-divider: #EBE4D3;
+  --app-text: #2E3A34;
+  --app-heading: #22302A;
+  --app-text-secondary: #6B7B72;
+  --app-primary: #4A7C6F;
+  --app-primary-deep: #3E6B5E;
+  --app-hover: #EEF3EF;
+  --app-selected: #E4EDE7;
 }
 
 html,
@@ -16,6 +28,29 @@ body,
 }
 
 body {
+  min-width: 320px;
   background: var(--app-bg);
   color: var(--app-text);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.page-title {
+  font-family: 'Noto Serif SC', serif;
+  color: var(--app-heading);
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  color: var(--app-primary);
+  font-weight: 600;
 }

@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	defer clients.DB.Close()
 
+	defer clients.DB.Close()
 	commonSvc := service.NewCommonService(clients.CosClient)
 	commonHandler := handler.NewCommonHandler(commonSvc)
 
