@@ -6,6 +6,19 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type ImportProcessConfig struct {
+	ImportFileTempDir *string `yaml:"import_file_temp_dir"`
+}
+
+type MineruConfig struct {
+	BaseURL *string `yaml:"base_url"`
+	Token   *string `yaml:"token"`
+}
+
+type AiConfig struct {
+	MineruConfig *MineruConfig `yaml:"mineru_config"`
+}
+
 type CosConfig struct {
 	Bucket    *string `yaml:"bucket"`
 	Domain    *string `yaml:"domain"`
@@ -23,8 +36,10 @@ type MysqlConfig struct {
 }
 
 type Config struct {
-	CosConfig   *CosConfig   `yaml:"cos_config"`
-	MysqlConfig *MysqlConfig `yaml:"mysql_config"`
+	CosConfig           *CosConfig           `yaml:"cos_config"`
+	MysqlConfig         *MysqlConfig         `yaml:"mysql_config"`
+	AiConfig            *AiConfig            `yaml:"ai_config"`
+	ImportProcessConfig *ImportProcessConfig `yaml:"import_process_config"`
 }
 
 var AppConfig *Config
@@ -38,11 +53,4 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	var cfg Config
-	err = yaml.Unmarshal(configRaw, &cfg)
-
-	if err != nil {
-		panic(err)
-	}
-	AppConfig = &cfg
 }

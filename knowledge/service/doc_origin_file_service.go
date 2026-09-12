@@ -70,6 +70,7 @@ func (s *DocOriginFileService) AnalysisDocOriginFile(ctx context.Context, id int
 	}
 
 	result, err := s.importGraphCompiledInstance.Invoke(ctx, &processimportnodes.FileLink{
+		ObjKey:   *docOriginFile.ObjectKey,
 		DocTitle: *docOriginFile.DocTitle,
 		Url:      *config.AppConfig.CosConfig.Domain + "/" + *docOriginFile.ObjectKey,
 	})

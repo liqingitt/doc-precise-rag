@@ -20,6 +20,7 @@ func (e *EntryNode) Process(fileLink *FileLink) (*DocLink, error) {
 	ext := path.Ext(parsedURL.Path)
 
 	return &DocLink{
+		ObjKey:   fileLink.ObjKey,
 		Url:      fileLink.Url,
 		DocTitle: fileLink.DocTitle,
 		Ext:      ext,
