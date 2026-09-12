@@ -2,17 +2,23 @@ package service
 
 import (
 	"context"
+	"doc-precise-rag/knowledge/config"
 	"doc-precise-rag/knowledge/entity"
 	"doc-precise-rag/knowledge/module"
+	processimportnodes "doc-precise-rag/knowledge/process/import/nodes"
 	"doc-precise-rag/knowledge/repository"
+	"log/slog"
+
+	"github.com/cloudwego/eino/compose"
 )
 
 type DocOriginFileService struct {
-	docOriginFileRepository *repository.DocOriginFileRepository
+	docOriginFileRepository     *repository.DocOriginFileRepository
+	importGraphCompiledInstance compose.Runnable[*processimportnodes.FileLink, string]
 }
 
-func NewDocOriginFileService(docOriginFileRepository *repository.DocOriginFileRepository) *DocOriginFileService {
-	return &DocOriginFileService{docOriginFileRepository: docOriginFileRepository}
+func NewDocOriginFileService(docOriginFileRepository *repository.DocOriginFileRepository, importGraphCompiledInstance compose.Runnable[*processimportnodes.FileLink, string]) *DocOriginFileService {
+	return &DocOriginFileService{docOriginFileRepository: docOriginFileRepository, importGraphCompiledInstance: importGraphCompiledInstance}
 }
 
 func (s *DocOriginFileService) QueryDocOriginFileList(ctx context.Context, queryReq *entity.QueryDocOriginFileReq) ([]*entity.QueryDocOriginFileResp, int64, error) {
@@ -55,4 +61,21 @@ func (s *DocOriginFileService) AddDocOriginFile(ctx context.Context, addReq *ent
 
 func (s *DocOriginFileService) DeleteDocOriginFile(ctx context.Context, id int64) error {
 	return s.docOriginFileRepository.DeleteDocOriginFileById(ctx, id)
+}
+
+func (s *DocOriginFileService) AnalysisDocOriginFile(ctx context.Context, id int64) error {
+	docOriginFile, err := s.docOriginFileRepository.FindDocOriginFileById(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	result, err := s.importGraphCompiledInstance.Invoke(ctx, &processimportnodes.FileLink{
+		DocTitle: *docOriginFile.DocTitle,
+		Url:      *config.AppConfig.CosConfig.Domain + "/" + *docOriginFile.ObjectKey,
+	})
+	if err != nil {
+		return err
+	}
+	slog.Info("AnalysisDocOriginFile", "result", result)
+	return nil
 }

@@ -94,6 +94,17 @@ func (h *DocHandler) AnalysisDocOriginFile(ctx *gin.Context) {
 		return
 	}
 
+	err := h.DocOriginFileService.AnalysisDocOriginFile(ctx.Request.Context(), *analysisReq.Id)
+	if err != nil {
+		ctx.JSON(http.StatusOK, entity.BaseResp[any]{
+			Success: false,
+			Code:    entity.Ptr(int64(http.StatusBadRequest)),
+			Message: entity.Ptr(err.Error()),
+			Data:    nil,
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, entity.BaseResp[any]{
 		Success: true,
 		Code:    entity.Ptr(int64(http.StatusOK)),

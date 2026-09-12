@@ -119,14 +119,14 @@ export default function DocumentsPage() {
   }
 
   const handleAnalysis = async (record: DocOriginFileItem) => {
-    setAnalyzingKeys((prev) => [...prev, record.object_key])
+    setAnalyzingKeys((prev) => [...prev, record.id])
     try {
-      await analysisDocOriginFile(record.object_key)
+      await analysisDocOriginFile(record.id)
       message.success(`已开始解析「${record.doc_title}」`)
     } catch (error) {
       message.error(error instanceof Error ? error.message : '解析失败')
     } finally {
-      setAnalyzingKeys((prev) => prev.filter((key) => key !== record.object_key))
+      setAnalyzingKeys((prev) => prev.filter((key) => key !== record.id))
     }
   }
 
@@ -176,7 +176,7 @@ export default function DocumentsPage() {
           <Button
             type="link"
             onClick={() => void handleAnalysis(record)}
-            loading={analyzingKeys.includes(record.object_key)}
+            loading={analyzingKeys.includes(record.id)}
           >
             开始解析
           </Button>

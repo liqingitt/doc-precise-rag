@@ -17,6 +17,19 @@ type DocOriginFileRepository struct {
 	snowflakeClient *snowflake.Node
 }
 
+func (r *DocOriginFileRepository) FindDocOriginFileById(ctx context.Context, id int64) (*module.DocOriginFileModule, error) {
+	sqlStr, args, err := squirrel.Select("id", "object_key", "doc_title", "create_time", "update_time").From("doc_origin_file").Where("id = ?", id).ToSql()
+	if err != nil {
+		return nil, err
+	}
+	var module module.DocOriginFileModule
+	err = r.db.GetContext(ctx, &module, sqlStr, args...)
+	if err != nil {
+		return nil, err
+	}
+	return &module, nil
+}
+
 func NewDocOriginFileRepository(db *sqlx.DB, snowflakeClient *snowflake.Node) *DocOriginFileRepository {
 	return &DocOriginFileRepository{db: db, snowflakeClient: snowflakeClient}
 }

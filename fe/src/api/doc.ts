@@ -27,9 +27,9 @@ export function addDocOriginFile(objectKey: string, docTitle: string) {
   })
 }
 
-export function analysisDocOriginFile(objectKey: string) {
+export function analysisDocOriginFile(id: string) {
   return postJSON<null>('/api/doc/analysis-doc-origin-file', {
-    object_key: objectKey,
+    id,
   })
 }
 
