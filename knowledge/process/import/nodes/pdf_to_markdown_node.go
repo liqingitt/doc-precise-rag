@@ -268,7 +268,7 @@ func (node *PdfToMarkdownNode) dealWithMdImages(baseCtx context.Context, markdow
 		}
 	}
 
-	markdownObjectKey := fmt.Sprintf("markdown/%s.md", docTitle)
+	markdownObjectKey := fmt.Sprintf("doc-anchor/markdown/%s.md", docTitle)
 
 	_, err = clients.CosClient.Object.Put(
 		baseCtx,
@@ -341,7 +341,7 @@ func (node *PdfToMarkdownNode) getImageContext(ctx context.Context, imageName st
 			currentLineContext: currentLineContext,
 		})
 	}
-	return []ImageContext{}, nil
+	return imageContexts, nil
 }
 
 var titleRegex = regexp.MustCompile(`^#{1,6}\s+`)
@@ -483,7 +483,7 @@ func (node *PdfToMarkdownNode) getImageOnlineLink(ctx context.Context, imageName
 	if mimeType == "" {
 		return "", errors.New("unknown image type")
 	}
-	objectKey := fmt.Sprintf("markdown-images/%s/%s", docTitle, imageName)
+	objectKey := fmt.Sprintf("doc-anchor/markdown-images/%s/%s", docTitle, imageName)
 
 	imageFile, err := os.Open(imagePath)
 	if err != nil {
