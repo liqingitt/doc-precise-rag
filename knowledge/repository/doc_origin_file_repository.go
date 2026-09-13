@@ -56,7 +56,7 @@ func (r *DocOriginFileRepository) QueryDocOriginFileList(ctx context.Context, pa
 	limit := pageSize
 
 	sql, args, err := squirrel.
-		Select("id", "object_key", "doc_title", "create_time", "update_time").
+		Select("id", "object_key", "analyze_doc_object_key", "doc_title", "create_time", "update_time").
 		From("doc_origin_file").OrderBy("create_time DESC").
 		Limit(uint64(limit)).Offset(uint64(offset)).
 		ToSql()
@@ -117,7 +117,11 @@ func (r *DocOriginFileRepository) UpdateDocOriginFileById(ctx context.Context, i
 	sql, args, err := squirrel.
 		Update("doc_origin_file").
 		Where("id = ?", id).
-		Set("object_key", module.ObjectKey).
+		SetMap(map[string]any{
+			"object_key":             module.ObjectKey,
+			"doc_title":              module.DocTitle,
+			"analyze_doc_object_key": module.AnalyzeDocObjectKey,
+		}).
 		ToSql()
 	if err != nil {
 		return err

@@ -60,6 +60,7 @@ go.work
 go.work.sum
 /doc-precise-rag
 /main
+__debug_bin*
 
 # --- Frontend (Vite / Node) ---
 node_modules/

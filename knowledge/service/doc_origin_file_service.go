@@ -52,7 +52,9 @@ func (s *DocOriginFileService) AddDocOriginFile(ctx context.Context, addReq *ent
 		return s.docOriginFileRepository.AddDocOriginFile(ctx, module)
 	}
 
-	err = s.docOriginFileRepository.UpdateDocOriginFileById(ctx, *docOriginFile.Id, module)
+	docOriginFile.ObjectKey = module.ObjectKey
+
+	err = s.docOriginFileRepository.UpdateDocOriginFileById(ctx, *docOriginFile.Id, docOriginFile)
 	if err != nil {
 		return 0, err
 	}
@@ -74,6 +76,11 @@ func (s *DocOriginFileService) AnalysisDocOriginFile(ctx context.Context, id int
 		DocTitle: *docOriginFile.DocTitle,
 		Url:      *config.AppConfig.CosConfig.Domain + "/" + *docOriginFile.ObjectKey,
 	})
+	if err != nil {
+		return err
+	}
+	docOriginFile.AnalyzeDocObjectKey = &result
+	err = s.docOriginFileRepository.UpdateDocOriginFileById(ctx, id, docOriginFile)
 	if err != nil {
 		return err
 	}

@@ -26,6 +26,7 @@ func NewRouter(handler *Handler) *gin.Engine {
 
 func registerCommonRouter(api *gin.RouterGroup, handler *handler.CommonHandler) {
 	api.POST("/upload-url", handler.GetUploadURL)
+	api.GET("/temp-file-url", handler.GetTempFileUrlByObjectKey)
 }
 
 func registerDocRouter(api *gin.RouterGroup, handler *handler.DocHandler) {

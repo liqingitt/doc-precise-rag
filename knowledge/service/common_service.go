@@ -63,6 +63,14 @@ func (s *CommonService) GetUploadURL(ctx context.Context, filename string) (*Upl
 	}, nil
 }
 
+func (s *CommonService) GetTempFileUrlByObjectKey(ctx context.Context, objectKey string) (string, error) {
+	signedURL, err := s.cos.Object.GetPresignedURL2(ctx, http.MethodGet, objectKey, urlExpire, nil)
+	if err != nil {
+		return "", err
+	}
+	return signedURL.String(), nil
+}
+
 func sanitizePDFName(name string) (string, error) {
 	name = filepath.Base(strings.TrimSpace(name))
 	if name == "" || name == "." || name == ".." {

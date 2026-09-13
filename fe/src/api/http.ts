@@ -5,13 +5,7 @@ interface BaseResp<T> {
   data?: T
 }
 
-export async function postJSON<T>(url: string, body: unknown = {}): Promise<T> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
-
+async function parseJSON<T>(res: Response): Promise<T> {
   let json: BaseResp<T>
   try {
     json = (await res.json()) as BaseResp<T>
@@ -24,4 +18,19 @@ export async function postJSON<T>(url: string, body: unknown = {}): Promise<T> {
   }
 
   return json.data as T
+}
+
+export async function postJSON<T>(url: string, body: unknown = {}): Promise<T> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  return parseJSON<T>(res)
+}
+
+export async function getJSON<T>(url: string, params?: Record<string, string>): Promise<T> {
+  const query = params ? `?${new URLSearchParams(params).toString()}` : ''
+  const res = await fetch(`${url}${query}`)
+  return parseJSON<T>(res)
 }

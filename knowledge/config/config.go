@@ -15,8 +15,15 @@ type MineruConfig struct {
 	Token   *string `yaml:"token"`
 }
 
+type VlmConfig struct {
+	ModelName *string `yaml:"model_name"`
+	Token     *string `yaml:"token"`
+	BaseURL   *string `yaml:"base_url"`
+}
+
 type AiConfig struct {
 	MineruConfig *MineruConfig `yaml:"mineru_config"`
+	VlmConfig    *VlmConfig    `yaml:"vlm_config"`
 }
 
 type CosConfig struct {

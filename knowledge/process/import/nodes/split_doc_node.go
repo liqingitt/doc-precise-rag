@@ -8,12 +8,12 @@ import (
 
 type SplitDocNode struct{}
 
-func (s *SplitDocNode) Process(docLink *DocLink) (string, error) {
-	return "123", nil
+func (s *SplitDocNode) Process(markdownData *MarkdownData) (string, error) {
+	return markdownData.ObjKey, nil
 }
 
 func (s *SplitDocNode) BuildInvokableLambda() *compose.Lambda {
-	return compose.InvokableLambda(func(ctx context.Context, input *DocLink) (string, error) {
+	return compose.InvokableLambda(func(ctx context.Context, input *MarkdownData) (string, error) {
 		return s.Process(input)
 	})
 }

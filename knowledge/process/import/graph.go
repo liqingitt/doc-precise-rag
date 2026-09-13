@@ -15,17 +15,20 @@ func init() {
 	entryNode := processimportnodes.NewEntryNode()
 	fileTypeBranchNode := processimportnodes.NewFileTypeBranchNode()
 	pdfToMarkdownNode := processimportnodes.NewPdfToMarkdownNode()
+	readMarkdownLinkNode := processimportnodes.NewReadMarkdownLinkNode()
 	splitDocNode := processimportnodes.NewSplitDocNode()
 
 	// compose.NewGraphBranch()
 
 	graph.AddLambdaNode("entryNode", entryNode.BuildInvokableLambda())
 	graph.AddLambdaNode("pdfToMarkdownNode", pdfToMarkdownNode.BuildInvokableLambda())
+	graph.AddLambdaNode("readMarkdownLinkNode", readMarkdownLinkNode.BuildInvokableLambda())
 	graph.AddLambdaNode("splitDocNode", splitDocNode.BuildInvokableLambda())
 
 	graph.AddEdge(compose.START, "entryNode")
 	graph.AddBranch("entryNode", fileTypeBranchNode.BuildGraphBranch())
 	graph.AddEdge("pdfToMarkdownNode", "splitDocNode")
+	graph.AddEdge("readMarkdownLinkNode", "splitDocNode")
 	graph.AddEdge("splitDocNode", compose.END)
 
 	compiled, err := graph.Compile(context.Background())

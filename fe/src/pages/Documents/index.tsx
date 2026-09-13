@@ -1,12 +1,15 @@
-import { InboxOutlined, PlusOutlined } from '@ant-design/icons'
-import { App, Button, Input, Modal, Popconfirm, Space, Table, Typography, Upload } from 'antd'
+import { InboxOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { App, Button, Input, Modal, Popconfirm, Space, Spin, Table, Typography, Upload } from 'antd'
 import type { TableColumnsType } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { createUploadURL, putFileToCOS } from '../../api/upload'
 import {
   addDocOriginFile,
   analysisDocOriginFile,
   deleteDocOriginFile,
+  getTempFileUrlByObjectKey,
   queryDocOriginFileList,
   type DocOriginFileItem,
 } from '../../api/doc'
@@ -55,6 +58,11 @@ export default function DocumentsPage() {
   const [docTitle, setDocTitle] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [uploadPercent, setUploadPercent] = useState<number | null>(null)
+
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewTitle, setPreviewTitle] = useState('')
+  const [previewMarkdown, setPreviewMarkdown] = useState('')
+  const [previewLoading, setPreviewLoading] = useState(false)
 
   const loadList = useCallback(
     async (nextPage = page, nextPageSize = pageSize) => {
@@ -122,7 +130,8 @@ export default function DocumentsPage() {
     setAnalyzingKeys((prev) => [...prev, record.id])
     try {
       await analysisDocOriginFile(record.id)
-      message.success(`已开始解析「${record.doc_title}」`)
+      message.success(`已解析「${record.doc_title}」`)
+      await loadList(page, pageSize)
     } catch (error) {
       message.error(error instanceof Error ? error.message : '解析失败')
     } finally {
@@ -136,15 +145,39 @@ export default function DocumentsPage() {
       await deleteDocOriginFile(record.id)
       message.success(`已删除「${record.doc_title}」`)
       const shouldGoPrevPage = list.length === 1 && page > 1
+      const nextPage = shouldGoPrevPage ? page - 1 : page
       if (shouldGoPrevPage) {
-        setPage(page - 1)
-      } else {
-        await loadList(page, pageSize)
+        setPage(nextPage)
       }
+      await loadList(nextPage, pageSize)
     } catch (error) {
       message.error(error instanceof Error ? error.message : '删除失败')
     } finally {
       setDeletingKeys((prev) => prev.filter((key) => key !== record.id))
+    }
+  }
+
+  const handleViewParsed = async (record: DocOriginFileItem) => {
+    const objectKey = record.analyze_doc_object_key?.trim()
+    if (!objectKey) return
+
+    setPreviewTitle(record.doc_title)
+    setPreviewMarkdown('')
+    setPreviewOpen(true)
+    setPreviewLoading(true)
+    try {
+      const { url } = await getTempFileUrlByObjectKey(objectKey)
+      const res = await fetch(url)
+      if (!res.ok) {
+        throw new Error(`拉取解析文档失败（${res.status}）`)
+      }
+      const markdown = await res.text()
+      setPreviewMarkdown(markdown)
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : '查看解析文档失败')
+      setPreviewOpen(false)
+    } finally {
+      setPreviewLoading(false)
     }
   }
 
@@ -170,30 +203,40 @@ export default function DocumentsPage() {
     {
       title: '操作',
       key: 'action',
-      width: 200,
-      render: (_, record) => (
-        <Space size={0}>
-          <Button
-            type="link"
-            onClick={() => void handleAnalysis(record)}
-            loading={analyzingKeys.includes(record.id)}
-          >
-            开始解析
-          </Button>
-          <Popconfirm
-            title="删除文档"
-            description={`确认删除「${record.doc_title}」？删除后不可恢复。`}
-            okText="删除"
-            cancelText="取消"
-            okButtonProps={{ danger: true }}
-            onConfirm={() => handleDelete(record)}
-          >
-            <Button type="link" danger loading={deletingKeys.includes(record.id)}>
-              删除
+      width: 280,
+      render: (_, record) => {
+        const hasParsed = Boolean(record.analyze_doc_object_key?.trim())
+        return (
+          <Space size={0}>
+            <Button
+              type="link"
+              disabled={!hasParsed}
+              onClick={() => void handleViewParsed(record)}
+            >
+              查看已解析
             </Button>
-          </Popconfirm>
-        </Space>
-      ),
+            <Button
+              type="link"
+              onClick={() => void handleAnalysis(record)}
+              loading={analyzingKeys.includes(record.id)}
+            >
+              开始解析
+            </Button>
+            <Popconfirm
+              title="删除文档"
+              description={`确认删除「${record.doc_title}」？删除后不可恢复。`}
+              okText="删除"
+              cancelText="取消"
+              okButtonProps={{ danger: true }}
+              onConfirm={() => handleDelete(record)}
+            >
+              <Button type="link" danger loading={deletingKeys.includes(record.id)}>
+                删除
+              </Button>
+            </Popconfirm>
+          </Space>
+        )
+      },
     },
   ]
 
@@ -205,9 +248,14 @@ export default function DocumentsPage() {
           <h2 className={`${styles.heading} page-title`}>原始文档</h2>
           <p className={styles.desc}>上传 PDF 后直传对象存储，再登记文档并启动解析。</p>
         </div>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalOpen(true)}>
-          新增文档
-        </Button>
+        <Space size={8}>
+          <Button icon={<ReloadOutlined />} loading={loading} onClick={() => void loadList(page, pageSize)}>
+            刷新
+          </Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalOpen(true)}>
+            新增文档
+          </Button>
+        </Space>
       </div>
 
       <Table<DocOriginFileItem>
@@ -293,6 +341,29 @@ export default function DocumentsPage() {
             />
           </div>
         </Space>
+      </Modal>
+
+      <Modal
+        title={previewTitle ? `已解析文档 · ${previewTitle}` : '已解析文档'}
+        open={previewOpen}
+        width={880}
+        footer={null}
+        onCancel={() => {
+          if (previewLoading) return
+          setPreviewOpen(false)
+          setPreviewMarkdown('')
+        }}
+        destroyOnHidden
+      >
+        <Spin spinning={previewLoading}>
+          <div className={styles.markdownPreview}>
+            {previewMarkdown ? (
+              <Markdown remarkPlugins={[remarkGfm]}>{previewMarkdown}</Markdown>
+            ) : (
+              <div className={styles.markdownEmpty}>{previewLoading ? '加载中…' : '暂无内容'}</div>
+            )}
+          </div>
+        </Spin>
       </Modal>
     </div>
   )

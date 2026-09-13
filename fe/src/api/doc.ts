@@ -1,11 +1,16 @@
-import { postJSON } from './http'
+import { getJSON, postJSON } from './http'
 
 export interface DocOriginFileItem {
   id: string
   object_key: string
   doc_title: string
+  analyze_doc_object_key?: string | null
   create_time: string
   update_time: string
+}
+
+export interface TempFileUrlData {
+  url: string
 }
 
 export interface DocOriginFilePage {
@@ -36,5 +41,11 @@ export function analysisDocOriginFile(id: string) {
 export function deleteDocOriginFile(id: string) {
   return postJSON<null>('/api/doc/delete-doc-origin-file', {
     id,
+  })
+}
+
+export function getTempFileUrlByObjectKey(objectKey: string) {
+  return getJSON<TempFileUrlData>('/api/common/temp-file-url', {
+    object_key: objectKey,
   })
 }

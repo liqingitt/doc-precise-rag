@@ -22,8 +22,8 @@ func (n *FileTypeBranchNode) BuildGraphBranch() *compose.GraphBranch {
 			}
 		},
 		map[string]bool{
-			"pdfToMarkdownNode": true,
-			"splitDocNode":      true,
+			"pdfToMarkdownNode":    true,
+			"readMarkdownLinkNode": true,
 		},
 	)
 
