@@ -3,6 +3,7 @@ import { App, Button, Input, Modal, Popconfirm, Space, Spin, Table, Typography, 
 import type { TableColumnsType } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import Markdown from 'react-markdown'
+import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
 import { createUploadURL, putFileToCOS } from '../../api/upload'
 import {
@@ -358,7 +359,9 @@ export default function DocumentsPage() {
         <Spin spinning={previewLoading}>
           <div className={styles.markdownPreview}>
             {previewMarkdown ? (
-              <Markdown remarkPlugins={[remarkGfm]}>{previewMarkdown}</Markdown>
+              <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                {previewMarkdown}
+              </Markdown>
             ) : (
               <div className={styles.markdownEmpty}>{previewLoading ? '加载中…' : '暂无内容'}</div>
             )}

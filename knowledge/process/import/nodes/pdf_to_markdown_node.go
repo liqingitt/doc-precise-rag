@@ -263,7 +263,7 @@ func (node *PdfToMarkdownNode) dealWithMdImages(baseCtx context.Context, markdow
 		onlineLink := imageOnlineLinkMap[imageName]
 		imageDescriptionRegex := regexp.MustCompile(`!\[.*?\]\(images/` + regexp.QuoteMeta(imageName) + `(?:\s+.*?)?\)`)
 		for _, description := range descriptions {
-			onlineImageTag := fmt.Sprintf(`![%s](%s)`, description, onlineLink)
+			onlineImageTag := fmt.Sprintf(`![%s](<%s>)`, description, onlineLink)
 			mdContent = utils.ReplaceStr(imageDescriptionRegex, mdContent, onlineImageTag, 1)
 		}
 	}
@@ -351,17 +351,18 @@ func (node *PdfToMarkdownNode) findImagePreContext(preIndex int, contentLines []
 	var paragraphTitle string
 	totalChars := 0
 	for preIndex := preIndex - 1; preIndex >= 0; preIndex-- {
-		line := contentLines[preIndex]
 
+		line := contentLines[preIndex]
 		if titleRegex.MatchString(line) {
 			paragraphTitle = line
 			break
 		}
+		if totalChars >= maxChars {
+			continue
+		}
 		preContext = append(preContext, line)
 		totalChars += len(line)
-		if totalChars >= maxChars {
-			break
-		}
+
 	}
 
 	slices.Reverse(preContext)
@@ -375,7 +376,7 @@ func (node *PdfToMarkdownNode) findImagePostContext(postIndex int, contentLines 
 		line := contentLines[postIndex]
 
 		if titleRegex.MatchString(line) {
-			continue
+			break
 		}
 		postContext = append(postContext, line)
 		totalChars += len(line)
@@ -395,7 +396,7 @@ func generateImageDescription(ctx context.Context, docTitle string, imageContext
 		defer func() {
 			<-vlmSem
 		}()
-	default:
+	case <-ctx.Done():
 		return "", ctx.Err()
 	}
 	response, err := chatmodel.VlmModel.Generate(ctx, []*schema.Message{
