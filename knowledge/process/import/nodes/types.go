@@ -25,3 +25,10 @@ type ImageContext struct {
 	postContext        string
 	currentLineContext string
 }
+
+type ParagraphData struct {
+	DocTitle         string
+	ParentTitle      string
+	ParagraphTitle   string
+	ParagraphContent string
+}

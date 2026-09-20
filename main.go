@@ -7,7 +7,6 @@ import (
 	"doc-precise-rag/knowledge/repository"
 	"doc-precise-rag/knowledge/router"
 	"doc-precise-rag/knowledge/service"
-	"fmt"
 )
 
 func main() {
@@ -16,8 +15,6 @@ func main() {
 	commonSvc := service.NewCommonService(clients.CosClient)
 	commonHandler := handler.NewCommonHandler(commonSvc)
 	importGraphCompiledInstance := processimport.ImportGraphCompiledInstance
-
-	fmt.Println("测试 commit  ")
 	docOriginFileRepository := repository.NewDocOriginFileRepository(clients.DB, clients.SnowflakeClient)
 	docOriginFileService := service.NewDocOriginFileService(docOriginFileRepository, importGraphCompiledInstance)
 	docOriginFileHandler := handler.NewDocHandler(docOriginFileService)
